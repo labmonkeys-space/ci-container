@@ -1,0 +1,34 @@
+---
+version: 2.1
+
+executors:
+  build-executor:
+    docker:
+      - image: quay.io/labmonkeys/cimg-base:20.04-20211130.b33
+
+commands:
+  make-image:
+    description: "Build OCI image and publish from main branch"
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Generate Dockerfile from template
+          command: make Dockerfile
+      - run:
+          name: Build OCI image and publish from main branch
+          command: if [[ "${CIRCLE_BRANCH}" == "main" ]]; then make publish BUILD_VERSION_SUFFIX=".b${CIRCLE_BUILD_NUM}"; else make oci; fi
+
+workflows:
+  version: 2
+  
+  build:
+    jobs:
+      - build-publish:
+          context: "Publishing"
+
+jobs:
+  build-publish:
+    executor: build-executor
+    steps:
+      - checkout
+      - make-image
