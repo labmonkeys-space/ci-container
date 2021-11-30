@@ -1,5 +1,5 @@
 ###
-# Do not edit the generated Dockefile
+# Do not edit the generated Dockerfile
 ###
 
 # hadolint ignore=DL3006
