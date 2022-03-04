@@ -5,7 +5,7 @@
 
 .DEFAULT_GOAL := oci
 
-SHELL                    := /usr/bin/bash
+SHELL                    := /bin/bash
 PROJECT_DIR              := $(shell basename $(abspath $(dir $$PWD)))
 PROJECT_NAME             := cimg-base
 CONTAINER_REGISTRY       ?=
@@ -86,7 +86,7 @@ Dockerfile: shellcheck hadolint info
 builder-instance: info
 	@if ! docker context inspect "$(BUILDER_INSTANCE)"; then docker context create "$(BUILDER_INSTANCE)"; fi;
 	docker context use "$(BUILDER_INSTANCE)"
-	
+
 oci: Dockerfile builder-instance
 	docker buildx build -o type=docker --platform="$(SINGLE_ARCH)" --tag $(PROJECT_DIR):$(subst /,-,$(SINGLE_ARCH)) .
 	docker image save $(PROJECT_DIR) -o ./build/$(PROJECT_DIR)_$(subst /,-,$(SINGLE_ARCH)).oci
