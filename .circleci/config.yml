@@ -34,6 +34,8 @@ workflows:
     jobs:
       - cimg:
           context: "Publishing"
+      - vmbuilder:
+          context: "Publishing"
 
 jobs:
   cimg:
@@ -41,3 +43,9 @@ jobs:
     steps:
       - make-image:
           workdir: "./cimg"
+
+  vmbuilder:
+    executor: build-executor
+    steps:
+      - make-image:
+          workdir: "./vmbuilder"
