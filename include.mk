@@ -7,7 +7,6 @@
 
 SHELL                    := /bin/bash
 PROJECT_DIR              := $(shell basename $(abspath $(dir $$PWD)))
-PROJECT_NAME             := cimg-base
 CONTAINER_REGISTRY       ?=
 CONTAINER_REGISTRY_REPO  ?=
 CONTAINER_REGISTRY_LOGIN ?=
@@ -17,7 +16,7 @@ RELEASE_TAG              ?= $(shell cat release.tag)$(BUILD_VERSION_SUFFIX)
 SINGLE_ARCH              ?= linux/amd64
 MULTI_ARCH               ?= linux/amd64
 BUILDER_INSTANCE         ?= builder-$(PROJECT_DIR)
-DOCKER_TAG               := $(CONTAINER_REGISTRY)/$(CONTAINER_REGISTRY_REPO)/$(PROJECT_NAME):$(RELEASE_TAG)
+DOCKER_TAG               := $(CONTAINER_REGISTRY)/$(CONTAINER_REGISTRY_REPO)/$(RELEASE_TAG)
 
 help:
 	@echo ""
@@ -73,14 +72,14 @@ shellcheck: deps
 	@find . -type f -name '*.sh' | xargs shellcheck --external-sources -e SC2034,SC2155
 	@echo -e "\033[0;32mDONE\033[0m"
 
-hadolint: deps
-	@echo -n "Run Hadolint on all Dockerfile templates: "
-	@find . -type f -name 'Dockerfile.tpl' | xargs hadolint
-	@echo -e "\033[0;32mDONE\033[0m"
-
-Dockerfile: shellcheck hadolint info
+Dockerfile: shellcheck info
 	@echo -n "Generating Dockerfile: "
 	@source ./version-lock.sh && envsubst < "Dockerfile.tpl" > "Dockerfile"
+	@echo -e "\033[0;32mDONE\033[0m"
+
+hadolint: Dockerfile
+	@echo -n "Run Hadolint on all Dockerfile templates: "
+	@find . -type f -name 'Dockerfile' | xargs hadolint --ignore=DL3059
 	@echo -e "\033[0;32mDONE\033[0m"
 
 builder-instance: info

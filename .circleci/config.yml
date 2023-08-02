@@ -9,26 +9,35 @@ executors:
 commands:
   make-image:
     description: "Build OCI image and publish from main branch"
+    parameters:
+      workdir:
+        default: "~/project"
+        type: string
     steps:
+      - checkout
       - setup_remote_docker
       - run:
-          name: Generate Dockerfile from template
-          command: make Dockerfile
-      - run:
           name: Build OCI image and publish from main branch
-          command: if [[ "${CIRCLE_BRANCH}" == "main" ]]; then make publish BUILD_VERSION_SUFFIX=".b${CIRCLE_BUILD_NUM}"; else make oci; fi
+          command: |
+            cd << parameters.workdir >> && pwd
+            if git show --name-only --format='' . | grep ""; then
+              echo "Changes detected trigger build"
+              if [[ "${CIRCLE_BRANCH}" == "main" ]]; then make publish BUILD_VERSION_SUFFIX=".b${CIRCLE_BUILD_NUM}"; else make oci; fi
+            else
+              echo "No changes in directory << parameters.workdir >> detected, skip build."
+            fi
 
 workflows:
   version: 2
 
   build:
     jobs:
-      - build-publish:
+      - cimg:
           context: "Publishing"
 
 jobs:
-  build-publish:
+  cimg:
     executor: build-executor
     steps:
-      - checkout
-      - make-image
+      - make-image:
+          workdir: "./cimg"
