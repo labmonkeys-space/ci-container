@@ -1,1 +1,1 @@
-vmbuilder:1.9.2
+vmbuilder:1.9.3

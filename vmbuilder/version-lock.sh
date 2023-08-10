@@ -8,4 +8,5 @@ export VCS_SOURCE
 export VCS_REVISION
 export DATE
 export BASE_IMAGE="ubuntu:jammy-20230624"
-export PACKER_VERSION="1.9.2*"
+export PACKER_VERSION="1.9.*"
+export ANSIBLE_LINT_VERSION="5.*"
